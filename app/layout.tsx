@@ -21,10 +21,14 @@ const notoSerifDevanagari = Noto_Serif_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "Dipshikha Krishi Sahakari Sanstha Ltd.",
+  title: {
+    default: "Dipshikha Krishi Sahakari Sanstha Ltd.",
+    template: "%s | Dipshikha Krishi Sahakari",
+  },
   description: "A trusted agriculture cooperative serving farming families across Bagmati Province.",
   icons: {
     icon: "/logo.png",
+    shortcut: "/logo.png",
     apple: "/logo.png",
   },
 };
