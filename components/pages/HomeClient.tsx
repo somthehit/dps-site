@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ArrowRight, Sprout, ShieldCheck, Tractor, Banknote, Phone, Mail, MapPin, Calendar, Clock,
   TrendingUp, Package, Users, Landmark, Wheat, HandCoins, BarChart2, Star, Home, BookOpen, Award, Globe, Layers,
+  Bell,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import HeroSlider, { HeroSlide } from "@/components/ui/HeroSlider";
+import NewsletterForm from "@/components/ui/NewsletterForm";
 
 type SiteStat = {
   id: number;
@@ -332,6 +334,40 @@ export default function HomeClient() {
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-32 bg-white overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+            <div className="lg:w-1/2">
+              <div className="text-brand-600 font-bold text-sm uppercase tracking-[0.2em] mb-4">Stay Connected</div>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight mb-8">
+                Get the latest updates from our cooperative
+              </h2>
+              <p className="text-lg text-slate-500 leading-relaxed mb-12">
+                Join our community of over 3,000 members and receive important notices, agricultural tips, and financial news directly in your inbox.
+              </p>
+              <div className="flex flex-wrap gap-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Official News</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <Bell className="w-6 h-6" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Instant Alerts</span>
+                </div>
+              </div>
+            </div>
+            <div className="lg:w-1/2 w-full">
+              <NewsletterForm />
+            </div>
           </div>
         </div>
       </section>
