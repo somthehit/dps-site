@@ -2,14 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 
-// Create Supabase admin client with service role key for API routes
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(request: NextRequest) {
   try {
+    // Check environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !serviceKey) {
+      console.error("Missing env vars:", { supabaseUrl: !!supabaseUrl, serviceKey: !!serviceKey });
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    // Create Supabase admin client inside request handler
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+    
     const { email, password } = await request.json();
 
     if (!email || !password) {
