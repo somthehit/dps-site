@@ -298,6 +298,8 @@ export const publicUsers = pgTable('public_users', {
   citizenshipFrontUrl: text('citizenship_front_url'),
   citizenshipBackUrl: text('citizenship_back_url'),
   passwordHash: text('password_hash'),
+  resetToken: text('reset_token'),
+  resetTokenExpiry: timestamp('reset_token_expiry'),
   status: varchar('status', { length: 20 }).default('pending'), // pending, approved, rejected
   createdAt: timestamp('created_at').defaultNow(),
 });

@@ -242,7 +242,7 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                   <Label htmlFor="password" title="Password" className="text-slate-700 font-bold">{t.register.password}</Label>
-                  <Link href="#" className="text-xs font-bold text-brand-700 hover:underline">{t.login.forgot}</Link>
+                  <Link href="/forgot-password" className="text-xs font-bold text-brand-700 hover:underline">{t.login.forgot}</Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-600 transition-colors" />
