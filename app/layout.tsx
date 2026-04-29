@@ -21,8 +21,12 @@ const notoSerifDevanagari = Noto_Serif_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "Dipshikha Krishi Sahakari Sanstha",
+  title: "Dipshikha Krishi Sahakari Sanstha Ltd.",
   description: "A trusted agriculture cooperative serving farming families across Bagmati Province.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
