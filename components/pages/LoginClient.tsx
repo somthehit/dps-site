@@ -14,14 +14,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/utils/supabase/client"
 import { useTranslation } from "@/lib/i18n/useTranslation"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
+import { SiteStat } from "@/lib/data/site-config"
 
 const loginSchema = z.object({
   phone: z.string().min(10, "Valid phone number required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
-export default function LoginClient() {
+export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
   const { t } = useTranslation()
+  const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
@@ -83,14 +86,27 @@ export default function LoginClient() {
           </p>
 
           <div className="grid grid-cols-2 gap-8 pt-10 border-t border-white/10">
-            <div>
-              <div className="text-3xl font-bold text-white">3,247+</div>
-              <div className="text-brand-300 text-sm font-medium uppercase tracking-wider">{t.stats.members}</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white">NPR 12Cr</div>
-              <div className="text-brand-300 text-sm font-medium uppercase tracking-wider">{t.stats.capital}</div>
-            </div>
+            {stats.length > 0 ? (
+              stats.slice(0, 2).map((stat) => (
+                <div key={stat.id}>
+                  <div className="text-3xl font-bold text-white">{stat.value}</div>
+                  <div className="text-brand-300 text-sm font-medium uppercase tracking-wider">
+                    {locale === 'en' ? stat.labelEn : stat.labelNe}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <>
+                <div>
+                  <div className="text-3xl font-bold text-white">3,247+</div>
+                  <div className="text-brand-300 text-sm font-medium uppercase tracking-wider">{t.stats.members}</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-white">NPR 12Cr</div>
+                  <div className="text-brand-300 text-sm font-medium uppercase tracking-wider">{t.stats.capital}</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
