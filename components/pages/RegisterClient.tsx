@@ -99,28 +99,29 @@ export default function RegisterClient() {
     setError(null)
 
     try {
-      // Direct database storage into 'public_users' table
-      // This separates web registration requests from official member records
-      const { error: dbError } = await supabase
-        .from('public_users')
-        .insert({
-          full_name: values.fullName,
+      // Call API to register user (properly hashes password)
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: values.fullName,
           email: values.email,
           phone: values.phone,
           address: values.address,
-          citizenship_no: values.citizenshipNo,
-          citizenship_front_url: citizenshipUrls[0] || null,
-          citizenship_back_url: citizenshipUrls[1] || null,
-          password_hash: values.password,
-          status: 'pending',
-        });
+          citizenshipNo: values.citizenshipNo,
+          citizenshipFrontUrl: citizenshipUrls[0] || null,
+          citizenshipBackUrl: citizenshipUrls[1] || null,
+          password: values.password,
+        }),
+      });
 
-      if (dbError) {
-        console.error("Database saving error:", dbError);
-        throw new Error(dbError.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed. Please try again.");
       }
       
-      console.log("User registration request submitted to public_users table");
+      console.log("User registration request submitted");
       setStep(4)
     } catch (err: unknown) {
       console.error("Registration catch error:", err);
