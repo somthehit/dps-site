@@ -57,7 +57,13 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
         throw new Error("Account not found or not approved yet. Please wait for admin approval.")
       }
 
-      // Try Supabase Auth login
+      // Verify password against stored password_hash
+      if (userData.password_hash !== values.password) {
+        throw new Error("Invalid email or password.")
+      }
+
+      // Password verified - create or login to Supabase Auth
+      // First try to login
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
@@ -91,7 +97,7 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
             throw new Error("Login failed after account creation.")
           }
         } else {
-          throw new Error("Invalid email or password.")
+          throw new Error("Login failed. Please try again.")
         }
       }
 

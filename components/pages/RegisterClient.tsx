@@ -111,9 +111,8 @@ export default function RegisterClient() {
           citizenship_no: values.citizenshipNo,
           citizenship_front_url: citizenshipUrls[0] || null,
           citizenship_back_url: citizenshipUrls[1] || null,
+          password_hash: values.password,
           status: 'pending',
-          // Storing a hint/hash of password isn't ideal here for security, 
-          // but for a request form, we are primarily collecting applicant info.
         });
 
       if (dbError) {
