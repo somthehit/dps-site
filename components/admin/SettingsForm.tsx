@@ -47,7 +47,7 @@ const FIELD_GROUPS: {
       { key: "site_title_ne", label: "Site Title (Nepali)", placeholder: "दिपशिखा कृषि सहकारी संस्था लि." },
       { key: "slogan_en", label: "Slogan (English)", placeholder: "Together for Sustainable Growth" },
       { key: "slogan_ne", label: "Slogan (Nepali)", placeholder: "दिगो वृद्धिको लागि सहकार्य" },
-      { key: "estb_year", label: "Establishment Year (BS)", placeholder: "2061" },
+      { key: "estb_year", label: "Establishment Year (BS)", placeholder: "2069" },
     ],
   },
   {

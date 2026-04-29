@@ -41,8 +41,8 @@ export default function AboutClient({ settings = {}, stats = [] }: AboutClientPr
     return text
       .replace(/2069/g, estbYear)
       .replace(/२०६९/g, estbYearNe)
-      .replace(/2061/g, estbYear)
-      .replace(/२०६१/g, estbYearNe);
+      .replace(/2069/g, estbYear)
+      .replace(/२०६९/g, estbYearNe);
   };
 
   const getContent = (keyEn: string, keyNe: string, fallback: string) => {

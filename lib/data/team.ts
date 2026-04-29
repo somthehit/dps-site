@@ -11,12 +11,12 @@ export const teamMembers = [
     education: { en: "MA in Economics, Tribhuvan University", ne: "अर्थशास्त्रमा एम.ए., त्रिभुवन विश्वविद्यालय" },
     experience: {
       en: [
-        "Chairperson - Dipshikha Sahakari (2061 - Present)",
+        "Chairperson - Dipshikha Sahakari (2069 - Present)",
         "Cooperative Consultant - Local Government Advisory Board",
         "Former Board Member - District Cooperative Union"
       ],
       ne: [
-        "अध्यक्ष - दिपशिखा सहकारी (२०६१ - हाल)",
+        "अध्यक्ष - दिपशिखा सहकारी (२०६९ - हाल)",
         "सहकारी सल्लाहकार - स्थानीय सरकार सल्लाहकार बोर्ड",
         "पूर्व बोर्ड सदस्य - जिल्ला सहकारी संघ"
       ]

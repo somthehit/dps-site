@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     default: "Dipshikha Krishi Sahakari Sanstha Ltd.",
     template: "%s | Dipshikha Krishi Sahakari",
   },
-  description: "A trusted agriculture cooperative serving farming families across Bagmati Province, providing savings, loans, and agricultural support.",
-  keywords: ["agriculture cooperative", "Nepal", "farming", "microfinance", "savings and credit", "Bagmati Province", "Dipshikha Krishi Sahakari"],
+  description: "A trusted agriculture cooperative serving farming families across Sudurpachim Province,Kalilai, providing savings, loans, and agricultural support.",
+  keywords: ["agriculture cooperative", "Nepal", "farming", "microfinance", "savings and credit", "Sudurpachim Province,Kalilai", "Dipshikha Krishi Sahakari"],
   authors: [{ name: "Dipshikha Krishi Sahakari Sanstha Ltd." }],
   creator: "Dipshikha Krishi Sahakari Sanstha Ltd.",
   publisher: "Dipshikha Krishi Sahakari Sanstha Ltd.",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     url: "https://dpscoop.com.np",
     siteName: "Dipshikha Krishi Sahakari Sanstha Ltd.",
     title: "Dipshikha Krishi Sahakari Sanstha Ltd.",
-    description: "Empowering farmers through cooperative spirit in Bagmati Province, Nepal.",
+    description: "Empowering farmers through cooperative spirit in Sudurpachim Province,Kalilai, Nepal.",
     images: [
       {
         url: "/logo.png",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Dipshikha Krishi Sahakari Sanstha Ltd.",
-    description: "Empowering farmers through cooperative spirit in Bagmati Province, Nepal.",
+    description: "Empowering farmers through cooperative spirit in Sudurpachim Province,Kalilai, Nepal.",
     images: ["/logo.png"],
   },
   icons: {

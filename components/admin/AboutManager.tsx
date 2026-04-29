@@ -121,7 +121,7 @@ export default function AboutManager({ initialSettings }: AboutManagerProps) {
               type="text"
               value={settings.about_header_en || ""}
               onChange={e => setSettings({ ...settings, about_header_en: e.target.value })}
-              placeholder="Growing together since 2061 B.S."
+              placeholder="Growing together since 2069 B.S."
               className="w-full h-12 px-4 border rounded-2xl bg-slate-50 text-sm"
             />
           </div>
@@ -131,7 +131,7 @@ export default function AboutManager({ initialSettings }: AboutManagerProps) {
               type="text"
               value={settings.about_header_ne || ""}
               onChange={e => setSettings({ ...settings, about_header_ne: e.target.value })}
-              placeholder="वि.सं. २०६१ देखि सँगै बढ्दै"
+              placeholder="वि.सं. २०६९ देखि सँगै बढ्दै"
               className="w-full h-12 px-4 border rounded-2xl bg-slate-50 text-sm font-noto"
             />
           </div>
