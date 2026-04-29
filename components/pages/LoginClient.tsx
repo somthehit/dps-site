@@ -67,15 +67,23 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
 
       // User verified - create or login to Supabase Auth
       // First try to login
+      console.log("Attempting Supabase Auth login...", values.email);
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       })
 
       if (authError) {
-        // If user doesn't exist in auth yet, create auth account and login
-        if (authError.message.includes("Invalid login credentials")) {
-          const { error: signUpError } = await supabase.auth.signUp({
+        console.error("Auth error:", authError);
+        console.log("Auth error message:", authError.message);
+        console.log("Auth error status:", authError.status);
+        
+        // If user doesn't exist in auth yet (Invalid login credentials or 400), create auth account
+        if (authError.message?.includes("Invalid login credentials") || 
+            authError.message?.includes("400") ||
+            authError.status === 400) {
+          console.log("User not found in auth, attempting signup...");
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: values.email,
             password: values.password,
             options: {
@@ -87,9 +95,11 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
           })
 
           if (signUpError) {
-            throw new Error("Login failed. Please try again.")
+            console.error("Signup error:", signUpError);
+            throw new Error(signUpError.message || "Login failed. Please try again.")
           }
 
+          console.log("Signup successful, attempting login...");
           // After signup, login automatically
           const { error: loginError } = await supabase.auth.signInWithPassword({
             email: values.email,
@@ -97,10 +107,11 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
           })
 
           if (loginError) {
+            console.error("Login after signup error:", loginError);
             throw new Error("Login failed after account creation.")
           }
         } else {
-          throw new Error("Login failed. Please try again.")
+          throw new Error(authError.message || "Login failed. Please try again.")
         }
       }
 
