@@ -98,12 +98,16 @@ export default function RegisterClient() {
     setError(null)
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
-        phone: values.phone,
+      // Create a dummy email for phone-based registration if email is required by provider settings
+      const dummyEmail = `${values.phone}@dpscoop.com.np`;
+
+      const { error: authError, data } = await supabase.auth.signUp({
+        email: dummyEmail,
         password: values.password,
         options: {
           data: {
             full_name: values.fullName,
+            phone: values.phone,
             address: values.address,
             citizenship_no: values.citizenshipNo,
             citizenship_urls: citizenshipUrls,
@@ -111,9 +115,15 @@ export default function RegisterClient() {
         },
       })
 
-      if (authError) throw authError
+      if (authError) {
+        console.error("Signup error details:", authError);
+        throw authError;
+      }
+      
+      console.log("Signup success:", data);
       setStep(4)
     } catch (err: unknown) {
+      console.error("Registration catch error:", err);
       setError(err instanceof Error ? err.message : "An error occurred during registration.")
     } finally {
       setIsLoading(false)
