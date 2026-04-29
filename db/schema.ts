@@ -286,3 +286,18 @@ export const newsletterSubscribers = pgTable('newsletter_subscribers', {
 }, (table) => [
   index('newsletter_subscribers_email_idx').on(table.email)
 ]);
+
+// Public Users (Web Registration Applications)
+export const publicUsers = pgTable('public_users', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  fullName: text('full_name').notNull(),
+  email: text('email').notNull().unique(),
+  phone: text('phone').notNull(),
+  address: text('address'),
+  citizenshipNo: text('citizenship_no'),
+  citizenshipFrontUrl: text('citizenship_front_url'),
+  citizenshipBackUrl: text('citizenship_back_url'),
+  passwordHash: text('password_hash'),
+  status: varchar('status', { length: 20 }).default('pending'), // pending, approved, rejected
+  createdAt: timestamp('created_at').defaultNow(),
+});

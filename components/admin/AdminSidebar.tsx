@@ -2,12 +2,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Settings, Share2, Bell, LogOut, ExternalLink, Package, Users, Users2, Image as ImageIcon, Download, Shield, Megaphone, MessageSquare, Sliders, Mail } from "lucide-react";
+import { LayoutDashboard, Settings, Share2, Bell, LogOut, ExternalLink, Package, Users, Users2, Image as ImageIcon, Download, Shield, Megaphone, MessageSquare, Sliders, Mail, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Hero Slides", href: "/admin/hero", icon: Sliders },
+  { label: "Applications", href: "/admin/public-users", icon: UserCheck },
   { label: "Messages", href: "/admin/messages", icon: MessageSquare },
   { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Site Settings", href: "/admin/settings", icon: Settings },

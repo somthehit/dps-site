@@ -18,6 +18,7 @@ import LanguageSwitcher from "@/components/ui/LanguageSwitcher"
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
+  email: z.string().email("Valid email address required"),
   phone: z.string().min(10, "Valid phone number required"),
   address: z.string().min(5, "Address is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -85,7 +86,7 @@ export default function RegisterClient() {
   const nextStep = async () => {
     let isValid = false
     if (step === 1) {
-      isValid = await trigger(["fullName", "phone", "address"])
+      isValid = await trigger(["fullName", "email", "phone", "address"])
     } else if (step === 2) {
       isValid = await trigger(["citizenshipNo"])
     }
@@ -98,34 +99,34 @@ export default function RegisterClient() {
     setError(null)
 
     try {
-      // Sanitize phone number to remove any non-digit characters for the dummy email
-      const sanitizedPhone = values.phone.replace(/\D/g, "");
-      const dummyEmail = `${sanitizedPhone}@dpscoop.com.np`;
+      // Direct database storage into 'public_users' table
+      // This separates web registration requests from official member records
+      const { error: dbError } = await supabase
+        .from('public_users')
+        .insert({
+          full_name: values.fullName,
+          email: values.email,
+          phone: values.phone,
+          address: values.address,
+          citizenship_no: values.citizenshipNo,
+          citizenship_front_url: citizenshipUrls[0] || null,
+          citizenship_back_url: citizenshipUrls[1] || null,
+          status: 'pending',
+          // Storing a hint/hash of password isn't ideal here for security, 
+          // but for a request form, we are primarily collecting applicant info.
+        });
 
-      const { error: authError, data } = await supabase.auth.signUp({
-        email: dummyEmail,
-        password: values.password,
-        options: {
-          data: {
-            full_name: values.fullName,
-            phone: values.phone,
-            address: values.address,
-            citizenship_no: values.citizenshipNo,
-            citizenship_urls: citizenshipUrls,
-          },
-        },
-      })
-
-      if (authError) {
-        console.error("Signup error details:", authError);
-        throw authError;
+      if (dbError) {
+        console.error("Database saving error:", dbError);
+        throw new Error(dbError.message);
       }
       
-      console.log("Signup success:", data);
+      console.log("User registration request submitted to public_users table");
       setStep(4)
     } catch (err: unknown) {
       console.error("Registration catch error:", err);
-      setError(err instanceof Error ? err.message : "An error occurred during registration.")
+      const msg = err instanceof Error ? err.message : "An error occurred during registration.";
+      setError(msg)
     } finally {
       setIsLoading(false)
     }
@@ -221,6 +222,12 @@ export default function RegisterClient() {
                     <Label htmlFor="fullName" className="text-slate-700 font-semibold">{t.register.fullName}</Label>
                     <Input id="fullName" placeholder="Som Prakash Chaudhary" className="h-12 border-slate-200 focus:ring-brand-500 rounded-xl" {...register("fullName")} />
                     {errors.fullName && <p className="text-xs text-red-500 font-medium">{errors.fullName.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-slate-700 font-semibold">Email Address</Label>
+                    <Input id="email" type="email" placeholder="example@gmail.com" className="h-12 border-slate-200 focus:ring-brand-500 rounded-xl" {...register("email")} />
+                    {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
