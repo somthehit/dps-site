@@ -1,5 +1,6 @@
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import WhatsAppChat from "@/components/ui/WhatsAppChat";
 import { getSiteSettings, getActiveSocialLinks } from "@/lib/data/site-config";
 
 export default async function MainLayout({
@@ -17,6 +18,7 @@ export default async function MainLayout({
       <Navbar settings={settings} socialLinks={socialLinks} />
       {children}
       <Footer settings={settings} socialLinks={socialLinks} />
+      <WhatsAppChat settings={settings} />
     </>
   );
 }
