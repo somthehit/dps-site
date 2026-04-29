@@ -115,7 +115,7 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
         }
       }
 
-      router.push("/dashboard")
+      router.push("/member")
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Invalid credentials. Please try again.")
     } finally {
