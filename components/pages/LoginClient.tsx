@@ -45,24 +45,23 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
     setError(null)
     
     try {
-      // Check if user exists in public_users with approved status
-      const { data: userData, error: userError } = await supabase
-        .from('public_users')
-        .select('*')
-        .eq('email', values.email)
-        .eq('status', 'approved')
-        .single()
+      // Call API to verify user credentials (bypasses RLS)
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      })
 
-      if (userError || !userData) {
-        throw new Error("Account not found or not approved yet. Please wait for admin approval.")
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed. Please try again.")
       }
 
-      // Verify password against stored password_hash
-      if (userData.password_hash !== values.password) {
-        throw new Error("Invalid email or password.")
-      }
-
-      // Password verified - create or login to Supabase Auth
+      // User verified - create or login to Supabase Auth
       // First try to login
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: values.email,
@@ -77,8 +76,8 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
             password: values.password,
             options: {
               data: {
-                full_name: userData.full_name,
-                phone: userData.phone,
+                full_name: data.user.fullName,
+                phone: data.user.phone,
               }
             }
           })
