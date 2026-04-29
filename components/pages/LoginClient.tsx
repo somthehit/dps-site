@@ -57,23 +57,42 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
         throw new Error("Account not found or not approved yet. Please wait for admin approval.")
       }
 
-      // For approved users, check if they have a password set
-      // If password_hash is null, they need to set password first
-      if (!userData.password_hash) {
-        // Store email in session storage for password setup
-        sessionStorage.setItem('pending_user_email', values.email)
-        router.push("/set-password")
-        return
-      }
-
-      // Try Supabase Auth login (for users who have auth accounts)
+      // Try Supabase Auth login
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       })
 
       if (authError) {
-        throw new Error("Invalid password. Please try again.")
+        // If user doesn't exist in auth yet, create auth account and login
+        if (authError.message.includes("Invalid login credentials")) {
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: values.email,
+            password: values.password,
+            options: {
+              data: {
+                full_name: userData.full_name,
+                phone: userData.phone,
+              }
+            }
+          })
+
+          if (signUpError) {
+            throw new Error("Login failed. Please try again.")
+          }
+
+          // After signup, login automatically
+          const { error: loginError } = await supabase.auth.signInWithPassword({
+            email: values.email,
+            password: values.password,
+          })
+
+          if (loginError) {
+            throw new Error("Login failed after account creation.")
+          }
+        } else {
+          throw new Error("Invalid email or password.")
+        }
       }
 
       router.push("/dashboard")
