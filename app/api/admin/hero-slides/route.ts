@@ -29,8 +29,17 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     
     // Parse dates if they exist, or set to null if empty
-    if (body.startAt) body.startAt = new Date(body.startAt);
-    if (body.endAt) body.endAt = new Date(body.endAt);
+    if (body.startAt && typeof body.startAt === 'string' && body.startAt.trim() !== '') {
+      body.startAt = new Date(body.startAt);
+    } else {
+      body.startAt = null;
+    }
+
+    if (body.endAt && typeof body.endAt === 'string' && body.endAt.trim() !== '') {
+      body.endAt = new Date(body.endAt);
+    } else {
+      body.endAt = null;
+    }
 
     const result = await db.insert(heroSlides).values(body).returning();
     return NextResponse.json(result[0]);

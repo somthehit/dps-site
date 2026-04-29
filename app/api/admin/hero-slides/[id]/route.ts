@@ -15,14 +15,30 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const body = await req.json();
+    const rawBody = await req.json();
 
-    // Parse dates if they exist
-    if (body.startAt) body.startAt = new Date(body.startAt);
-    if (body.endAt) body.endAt = new Date(body.endAt);
+    // Destructure to remove fields that shouldn't be updated and handle dates
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _, createdAt: __, startAt, endAt, ...updateData } = rawBody;
+
+    // Prepare sanitized data
+    const sanitizedData: Record<string, unknown> = { ...updateData };
+
+    // Only parse dates if they are valid non-empty strings
+    if (startAt && typeof startAt === 'string' && startAt.trim() !== '') {
+      sanitizedData.startAt = new Date(startAt);
+    } else if (startAt === null || startAt === '') {
+      sanitizedData.startAt = null;
+    }
+
+    if (endAt && typeof endAt === 'string' && endAt.trim() !== '') {
+      sanitizedData.endAt = new Date(endAt);
+    } else if (endAt === null || endAt === '') {
+      sanitizedData.endAt = null;
+    }
 
     const result = await db.update(heroSlides)
-      .set(body)
+      .set(sanitizedData)
       .where(eq(heroSlides.id, id))
       .returning();
 
