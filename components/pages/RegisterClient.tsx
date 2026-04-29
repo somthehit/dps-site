@@ -5,8 +5,9 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { ArrowLeft, ArrowRight, UploadCloud, CheckCircle2, Lock, Loader2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, UploadCloud, CheckCircle2, Lock, Loader2, FileCheck } from "lucide-react"
 import Image from "next/image"
+import { useRef } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,8 +29,49 @@ export default function RegisterClient() {
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [citizenshipUrls, setCitizenshipUrls] = useState<string[]>([])
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const supabase = createClient()
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setIsUploading(true)
+    setError(null)
+
+    try {
+      const newUrls: string[] = [...citizenshipUrls]
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Math.random()}.${fileExt}`
+        const filePath = `citizenship/${Date.now()}_${fileName}`
+
+        const { error: uploadError, data } = await supabase.storage
+          .from('member-docs')
+          .upload(filePath, file)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('member-docs')
+          .getPublicUrl(filePath)
+        
+        newUrls.push(publicUrl)
+      }
+
+      setCitizenshipUrls(newUrls)
+    } catch (err: any) {
+      setError("Failed to upload image. Please try again.")
+      console.error(err)
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const {
     register,
@@ -64,6 +106,7 @@ export default function RegisterClient() {
             full_name: values.fullName,
             address: values.address,
             citizenship_no: values.citizenshipNo,
+            citizenship_urls: citizenshipUrls,
           },
         },
       })
@@ -165,7 +208,7 @@ export default function RegisterClient() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-slate-700 font-semibold">{t.register.fullName}</Label>
-                    <Input id="fullName" placeholder="Ram Prasad Sharma" className="h-12 border-slate-200 focus:ring-brand-500 rounded-xl" {...register("fullName")} />
+                    <Input id="fullName" placeholder="Som Prakash Chaudhary" className="h-12 border-slate-200 focus:ring-brand-500 rounded-xl" {...register("fullName")} />
                     {errors.fullName && <p className="text-xs text-red-500 font-medium">{errors.fullName.message}</p>}
                   </div>
 
@@ -177,7 +220,7 @@ export default function RegisterClient() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="address" className="text-slate-700 font-semibold">{t.register.address}</Label>
-                      <Input id="address" placeholder="Paanchkhal-04, Kavre" className="h-12 border-slate-200 focus:ring-brand-500 rounded-xl" {...register("address")} />
+                      <Input id="address" placeholder="Gauriganga-1, Chaumala" className="h-12 border-slate-200 focus:ring-brand-500 rounded-xl" {...register("address")} />
                       {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
                     </div>
                   </div>
@@ -206,13 +249,50 @@ export default function RegisterClient() {
                     {errors.citizenshipNo && <p className="text-xs text-red-500 font-medium">{errors.citizenshipNo.message}</p>}
                   </div>
 
-                  <div className="p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center text-center cursor-pointer hover:border-brand-300 hover:bg-brand-50/30 transition-all">
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`p-8 border-2 border-dashed rounded-2xl bg-slate-50 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                      isUploading ? "opacity-50 cursor-not-allowed" : "hover:border-brand-300 hover:bg-brand-50/30"
+                    } ${citizenshipUrls.length > 0 ? "border-brand-200" : "border-slate-200"}`}
+                  >
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      multiple 
+                      accept="image/*" 
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                    />
                     <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-4">
-                      <UploadCloud className="w-6 h-6 text-slate-400" />
+                      {isUploading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-brand-600" />
+                      ) : (
+                        <UploadCloud className="w-6 h-6 text-slate-400" />
+                      )}
                     </div>
-                    <div className="text-sm font-bold text-slate-900 mb-1">{t.register.uploadId}</div>
+                    <div className="text-sm font-bold text-slate-900 mb-1">
+                      {isUploading ? "Uploading..." : t.register.uploadId}
+                    </div>
                     <p className="text-xs text-slate-500">{t.register.dragDrop}</p>
                   </div>
+
+                  {citizenshipUrls.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      {citizenshipUrls.map((url, i) => (
+                        <div key={i} className="relative group aspect-video rounded-xl overflow-hidden border border-slate-200">
+                          <Image src={url} alt={`Citizenship ${i + 1}`} fill className="object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <FileCheck className="w-6 h-6 text-white" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {error && step === 2 && (
+                    <p className="text-xs text-red-500 font-medium text-center">{error}</p>
+                  )}
                 </div>
 
                 <Button type="button" onClick={nextStep} className="w-full h-14 bg-brand-700 hover:bg-brand-800 text-lg font-bold rounded-xl shadow-lg">
