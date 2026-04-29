@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface WhatsAppChatProps {
   phoneNumber?: string;
@@ -11,6 +12,7 @@ interface WhatsAppChatProps {
 }
 
 export default function WhatsAppChat({ phoneNumber, settings = {} }: WhatsAppChatProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isMounted, setIsMounted] = useState(false);
@@ -56,8 +58,8 @@ export default function WhatsAppChat({ phoneNumber, settings = {} }: WhatsAppCha
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-brand-600 rounded-full"></div>
               </div>
               <div>
-                <h3 className="font-bold text-lg">WhatsApp Support</h3>
-                <p className="text-brand-100 text-xs">Typically replies within an hour</p>
+                <h3 className="font-bold text-lg">{t.whatsapp.title}</h3>
+                <p className="text-brand-100 text-xs">{t.whatsapp.subtitle}</p>
               </div>
             </div>
           </div>
@@ -66,7 +68,7 @@ export default function WhatsAppChat({ phoneNumber, settings = {} }: WhatsAppCha
           <div className="p-6 bg-slate-50">
             <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 max-w-[85%]">
               <p className="text-sm text-slate-700 leading-relaxed">
-                Namaste! 🙏 How can we help you with your agriculture or financial needs today?
+                {t.whatsapp.welcome}
               </p>
               <span className="text-[10px] text-slate-400 mt-2 block">
                 {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -78,7 +80,7 @@ export default function WhatsAppChat({ phoneNumber, settings = {} }: WhatsAppCha
           <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-slate-100 flex gap-2">
             <input
               type="text"
-              placeholder="Type your message..."
+              placeholder={t.whatsapp.inputPlaceholder}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="flex-1 bg-slate-100 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none transition-all"

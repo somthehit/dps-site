@@ -56,6 +56,12 @@ export const translations = {
       contact: "Contact",
       rights: "All Rights Reserved.",
     },
+    whatsapp: {
+      title: "WhatsApp Support",
+      subtitle: "Typically replies within an hour",
+      welcome: "Namaste! 🙏 How can we help you with your agriculture or financial needs today?",
+      inputPlaceholder: "Type your message...",
+    },
     common: {
       readMore: "Read More",
       viewAll: "View All",
@@ -298,6 +304,12 @@ export const translations = {
       links: "सहयोगी लिङ्कहरू",
       contact: "सम्पर्क",
       rights: "सर्वाधिकार सुरक्षित।",
+    },
+    whatsapp: {
+      title: "व्हाट्सएप सहायता",
+      subtitle: "सामान्यतया एक घण्टा भित्र जवाफ दिइन्छ",
+      welcome: "नमस्ते! 🙏 हामी तपाईंलाई आज तपाईंको कृषि वा वित्तीय आवश्यकताहरूमा कसरी मद्दत गर्न सक्छौं?",
+      inputPlaceholder: "तपाईंको सन्देश लेख्नुहोस्...",
     },
     common: {
       readMore: "थप पढ्नुहोस्",
