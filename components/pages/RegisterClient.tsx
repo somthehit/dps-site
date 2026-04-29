@@ -99,29 +99,36 @@ export default function RegisterClient() {
     setError(null)
 
     try {
-      // Call API to register user (properly hashes password)
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: values.fullName,
+      // Hash password using bcrypt before storing
+      const bcrypt = await import('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(values.password, salt);
+
+      // Direct database storage into 'public_users' table
+      const { error: dbError } = await supabase
+        .from('public_users')
+        .insert({
+          full_name: values.fullName,
           email: values.email,
           phone: values.phone,
           address: values.address,
-          citizenshipNo: values.citizenshipNo,
-          citizenshipFrontUrl: citizenshipUrls[0] || null,
-          citizenshipBackUrl: citizenshipUrls[1] || null,
-          password: values.password,
-        }),
-      });
+          citizenship_no: values.citizenshipNo,
+          citizenship_front_url: citizenshipUrls[0] || null,
+          citizenship_back_url: citizenshipUrls[1] || null,
+          password_hash: hashedPassword,
+          status: 'pending',
+        });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed. Please try again.");
+      if (dbError) {
+        console.error("Database saving error:", dbError);
+        // Check for duplicate email
+        if (dbError.message.includes("duplicate") || dbError.message.includes("unique")) {
+          throw new Error("Email already registered. Please use a different email.");
+        }
+        throw new Error(dbError.message);
       }
       
-      console.log("User registration request submitted");
+      console.log("User registration request submitted to public_users table");
       setStep(4)
     } catch (err: unknown) {
       console.error("Registration catch error:", err);

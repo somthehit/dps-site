@@ -45,20 +45,24 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
     setError(null)
     
     try {
-      // Call API to verify user credentials (bypasses RLS)
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
-      })
+      // Fetch approved user from public_users (RLS should allow this for anonymous users)
+      const { data: userData, error: userError } = await supabase
+        .from('public_users')
+        .select('*')
+        .eq('email', values.email)
+        .eq('status', 'approved')
+        .single()
 
-      const data = await response.json()
+      if (userError || !userData) {
+        throw new Error("Account not found or not approved yet. Please wait for admin approval.")
+      }
 
-      if (!response.ok) {
-        throw new Error(data.error || "Login failed. Please try again.")
+      // Verify password using bcrypt
+      const bcrypt = await import('bcryptjs');
+      const isPasswordValid = await bcrypt.compare(values.password, userData.password_hash || "")
+      
+      if (!isPasswordValid) {
+        throw new Error("Invalid email or password.")
       }
 
       // User verified - create or login to Supabase Auth
@@ -76,8 +80,8 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
             password: values.password,
             options: {
               data: {
-                full_name: data.user.fullName,
-                phone: data.user.phone,
+                full_name: userData.full_name,
+                phone: userData.phone,
               }
             }
           })
