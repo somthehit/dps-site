@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme{
+  --color-brand-50: #f0fdf4;
+  --color-brand-100: #dcfce7;
+  --color-brand-200: #bbf7d0;
+  --color-brand-300: #86efac;
+  --color-brand-400: #4ade80;
+  --color-brand-500: #22c55e;
+  --color-brand-600: #16a34a;
+  --color-brand-700: #15803d;
+  --color-brand-800: #166534;
+  --color-brand-900: #14532d;
+  --color-brand-950: #052e16;
+  
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --font-sans: var(--font-sans), "Inter", sans-serif;
+  --font-noto-sans: var(--font-noto-sans), var(--font-sans);
+  --font-noto-serif: var(--font-noto-serif), serif;
+  
+  --animate-fade-in-up: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-marquee: marquee 40s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased overflow-x-hidden selection:bg-brand-500 selection:text-white;
+  }
+
+  body:lang(ne) {
+    font-family: var(--font-noto-sans);
+  }
+
+  :lang(ne) h1, 
+  :lang(ne) h2, 
+  :lang(ne) h3, 
+  :lang(ne) .font-serif {
+    font-family: var(--font-noto-serif);
+  }
+}
+
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+}
+
+.dark-glass {
+  @apply bg-slate-900/80 backdrop-blur-lg border border-slate-700/50 shadow-[0_8px_30px_rgb(0,0,0,0.2)];
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-teal-500;
+}
+
+.news-ticker {
+  @apply bg-white border-b border-slate-100 py-3.5 overflow-hidden flex;
+}
+
+.news-ticker-content {
+  @apply flex gap-12 whitespace-nowrap animate-marquee items-center;
+}
+
+.news-ticker-content:hover {
+  animation-play-state: paused;
+}
+
+.news-ticker-content span {
+  @apply text-sm font-semibold text-slate-700 flex items-center gap-2;
+}
