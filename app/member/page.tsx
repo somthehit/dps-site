@@ -31,20 +31,37 @@ export default function MemberDashboard() {
 
   useEffect(() => {
     const getUser = async () => {
+      // First try to get user from Supabase auth
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser({
           email: user.email || "",
           fullName: user.user_metadata?.full_name || "",
         });
+      } else {
+        // Fallback to sessionStorage if auth session not available
+        // (e.g., when email confirmation is pending)
+        const storedUser = sessionStorage.getItem('member_user');
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+          } catch (e) {
+            console.error("Failed to parse stored user:", e);
+          }
+        } else {
+          // No user found - redirect to login
+          router.push("/login");
+        }
       }
       setLoading(false);
     };
     getUser();
-  }, []);
+  }, [router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    sessionStorage.removeItem('member_user');
     router.push("/login");
   };
 

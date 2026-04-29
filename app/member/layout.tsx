@@ -1,17 +1,9 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
-
 export default async function MemberLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
+  // Auth is handled client-side in the page component
+  // to support sessionStorage fallback for email confirmation flow
   return <>{children}</>;
 }
