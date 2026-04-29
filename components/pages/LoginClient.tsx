@@ -18,7 +18,7 @@ import { useLanguage } from "@/lib/i18n/LanguageContext"
 import { SiteStat } from "@/lib/data/site-config"
 
 const loginSchema = z.object({
-  phone: z.string().min(10, "Valid phone number required"),
+  email: z.string().email("Valid email address required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
@@ -45,12 +45,37 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
     setError(null)
     
     try {
+      // Check if user exists in public_users with approved status
+      const { data: userData, error: userError } = await supabase
+        .from('public_users')
+        .select('*')
+        .eq('email', values.email)
+        .eq('status', 'approved')
+        .single()
+
+      if (userError || !userData) {
+        throw new Error("Account not found or not approved yet. Please wait for admin approval.")
+      }
+
+      // For approved users, check if they have a password set
+      // If password_hash is null, they need to set password first
+      if (!userData.password_hash) {
+        // Store email in session storage for password setup
+        sessionStorage.setItem('pending_user_email', values.email)
+        router.push("/set-password")
+        return
+      }
+
+      // Try Supabase Auth login (for users who have auth accounts)
       const { error: authError } = await supabase.auth.signInWithPassword({
-        phone: values.phone,
+        email: values.email,
         password: values.password,
       })
 
-      if (authError) throw authError
+      if (authError) {
+        throw new Error("Invalid password. Please try again.")
+      }
+
       router.push("/dashboard")
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Invalid credentials. Please try again.")
@@ -126,17 +151,18 @@ export default function LoginClient({ stats = [] }: { stats?: SiteStat[] }) {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-slate-700 font-bold ml-1">Phone Number</Label>
+                <Label htmlFor="email" className="text-slate-700 font-bold ml-1">Email Address</Label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-600 transition-colors" />
                   <Input 
-                    id="phone" 
-                    placeholder="98XXXXXXXX" 
+                    id="email" 
+                    type="email"
+                    placeholder="example@gmail.com" 
                     className="h-14 pl-12 border-slate-200 bg-white focus:bg-white focus:ring-brand-500 rounded-2xl shadow-sm transition-all" 
-                    {...register("phone")} 
+                    {...register("email")} 
                   />
                 </div>
-                {errors.phone && <p className="text-xs text-red-500 font-medium ml-1">{errors.phone.message}</p>}
+                {errors.email && <p className="text-xs text-red-500 font-medium ml-1">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2">

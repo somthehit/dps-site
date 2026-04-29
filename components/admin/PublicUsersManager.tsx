@@ -20,15 +20,15 @@ import Image from "next/image";
 
 type PublicUser = {
   id: string;
-  fullName: string;
+  full_name: string;
   email: string;
   phone: string;
   address: string;
-  citizenshipNo: string;
-  citizenshipFrontUrl: string;
-  citizenshipBackUrl: string;
+  citizenship_no: string;
+  citizenship_front_url: string;
+  citizenship_back_url: string;
   status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
+  created_at: string;
 };
 
 export default function PublicUsersManager() {
@@ -120,10 +120,10 @@ export default function PublicUsersManager() {
                   {user.status}
                 </div>
                 <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
+                  <Clock className="w-3 h-3" /> {user.created_at ? new Date(user.created_at).toLocaleDateString() : "Unknown"}
                 </div>
               </div>
-              <h3 className="font-bold text-slate-900 line-clamp-1">{user.fullName}</h3>
+              <h3 className="font-bold text-slate-900 line-clamp-1">{user.full_name}</h3>
               <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                 <Phone className="w-3 h-3" /> {user.phone}
               </div>
@@ -143,7 +143,7 @@ export default function PublicUsersManager() {
               <div className="p-8 border-b border-slate-50 bg-slate-50/50">
                 <div className="flex flex-col md:flex-row justify-between gap-6">
                   <div>
-                    <h2 className="text-2xl font-black text-slate-900 mb-2">{selectedUser.fullName}</h2>
+                    <h2 className="text-2xl font-black text-slate-900 mb-2">{selectedUser.full_name}</h2>
                     <div className="flex flex-wrap gap-4 text-sm font-medium text-slate-500">
                       <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> {selectedUser.email}</span>
                       <span className="flex items-center gap-1.5"><Phone className="w-4 h-4" /> {selectedUser.phone}</span>
@@ -195,7 +195,7 @@ export default function PublicUsersManager() {
                     <div className="space-y-2">
                       <div className="flex justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
                         <span className="text-slate-500 font-medium">ID Number</span>
-                        <span className="text-slate-900 font-bold">{selectedUser.citizenshipNo || "N/A"}</span>
+                        <span className="text-slate-900 font-bold">{selectedUser.citizenship_no || "N/A"}</span>
                       </div>
                     </div>
                   </div>
@@ -206,16 +206,16 @@ export default function PublicUsersManager() {
                     <Eye className="w-3 h-3" /> Identity Documents
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
-                    {selectedUser.citizenshipFrontUrl ? (
+                    {selectedUser.citizenship_front_url ? (
                       <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
                         <Image 
-                          src={selectedUser.citizenshipFrontUrl} 
+                          src={selectedUser.citizenship_front_url} 
                           alt="ID Front" 
                           fill 
                           className="object-cover group-hover:scale-110 transition-transform duration-500" 
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <a href={selectedUser.citizenshipFrontUrl} target="_blank" className="text-white bg-white/20 p-2 rounded-full backdrop-blur-md">
+                          <a href={selectedUser.citizenship_front_url} target="_blank" className="text-white bg-white/20 p-2 rounded-full backdrop-blur-md">
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         </div>
@@ -225,16 +225,16 @@ export default function PublicUsersManager() {
                         Front Missing
                       </div>
                     )}
-                    {selectedUser.citizenshipBackUrl ? (
+                    {selectedUser.citizenship_back_url ? (
                       <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
                         <Image 
-                          src={selectedUser.citizenshipBackUrl} 
+                          src={selectedUser.citizenship_back_url} 
                           alt="ID Back" 
                           fill 
                           className="object-cover group-hover:scale-110 transition-transform duration-500" 
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <a href={selectedUser.citizenshipBackUrl} target="_blank" className="text-white bg-white/20 p-2 rounded-full backdrop-blur-md">
+                          <a href={selectedUser.citizenship_back_url} target="_blank" className="text-white bg-white/20 p-2 rounded-full backdrop-blur-md">
                             <ExternalLink className="w-4 h-4" />
                           </a>
                         </div>
