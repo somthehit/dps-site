@@ -28,7 +28,7 @@ export default function Footer({ settings = {}, socialLinks = [] }: FooterProps)
   const { t, locale } = useTranslation();
 
   const phone = settings.phone ?? "+977-9805791785";
-  const email = settings.email ?? "dps.cop724@gmail.com";
+  const email = settings.email ?? "dps.coop724@gmail.com";
   const address = (locale === "ne" ? settings.address_ne : settings.address_en) || t.nav.address;
   const slogan = (locale === "ne" ? settings.slogan_ne : settings.slogan_en) || t.nav.slogan;
   const about = (locale === "ne" ? settings.about_ne : settings.about_en) || t.footer.about;
@@ -169,10 +169,9 @@ export default function Footer({ settings = {}, socialLinks = [] }: FooterProps)
             <div className="flex items-center gap-6 text-sm text-brand-100/40">
               <Link href="/admin" className="hover:text-brand-300 transition-colors">Admin</Link>
             </div>
-          </div>
+          </div>          
         </div>
       </div>
-
     </footer>
   );
 }
