@@ -98,8 +98,9 @@ export default function RegisterClient() {
     setError(null)
 
     try {
-      // Create a dummy email for phone-based registration if email is required by provider settings
-      const dummyEmail = `${values.phone}@dpscoop.com.np`;
+      // Sanitize phone number to remove any non-digit characters for the dummy email
+      const sanitizedPhone = values.phone.replace(/\D/g, "");
+      const dummyEmail = `${sanitizedPhone}@dpscoop.com.np`;
 
       const { error: authError, data } = await supabase.auth.signUp({
         email: dummyEmail,
