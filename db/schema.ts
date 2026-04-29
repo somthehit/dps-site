@@ -276,3 +276,13 @@ export const heroSlides = pgTable('hero_slides', {
 }, (table) => [
   index('hero_slides_created_at_idx').on(table.createdAt)
 ]);
+
+// Newsletter Subscribers
+export const newsletterSubscribers = pgTable('newsletter_subscribers', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  isActive: boolean('is_active').notNull().default(true),
+  subscribedAt: timestamp('subscribed_at').defaultNow(),
+}, (table) => [
+  index('newsletter_subscribers_email_idx').on(table.email)
+]);
