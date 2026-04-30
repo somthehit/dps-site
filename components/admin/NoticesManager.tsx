@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { Plus, Trash2, Edit3, X, Save, Bell, Calendar, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Edit3, X, Save, Bell, Calendar, AlertCircle, Send, Mail } from "lucide-react";
 
 import { uploadFile, deleteFile, getPublicUrl } from "@/utils/supabase/storage";
 
@@ -25,6 +25,7 @@ export default function NoticesManager({ initialNotices }: { initialNotices: Not
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [broadcastingId, setBroadcastingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Partial<Notice>>({
     titleEn: "", titleNe: "", descEn: "", descNe: "",
@@ -103,6 +104,35 @@ export default function NoticesManager({ initialNotices }: { initialNotices: Not
     });
     setIsAdding(false);
     setEditingId(null);
+  };
+
+  const handleBroadcast = async (item: Notice) => {
+    if (!confirm(`Send this notice to all newsletter subscribers?\n\nTitle: ${item.titleEn}\n\nसबै न्यूजलेटर सदस्यहरूलाई यो सूचना पठाउने?`)) return;
+    
+    setBroadcastingId(item.id);
+    try {
+      const res = await fetch("/api/admin/notices/broadcast", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-admin-secret": getSecret()
+        },
+        body: JSON.stringify({ noticeId: item.id }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to broadcast");
+      }
+      
+      alert(`✅ Email sent successfully!\n\n📧 Sent: ${data.sentCount || 0} subscribers\n📧 Failed: ${data.failedCount || 0}\n\nNotice: ${data.noticeTitle || item.titleEn}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Broadcast failed";
+      alert("❌ Error: " + msg);
+    } finally {
+      setBroadcastingId(null);
+    }
   };
 
   const startEdit = (item: Notice) => {
@@ -228,8 +258,20 @@ export default function NoticesManager({ initialNotices }: { initialNotices: Not
                </div>
                
                <div className="flex gap-2">
-                  <button onClick={() => startEdit(item)} className="p-3 bg-slate-50 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-all"><Edit3 className="w-5 h-5" /></button>
-                  <button onClick={() => handleDelete(item.id, item.imageKey)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"><Trash2 className="w-5 h-5" /></button>
+                  <button 
+                    onClick={() => handleBroadcast(item)} 
+                    disabled={broadcastingId === item.id}
+                    className="p-3 bg-slate-50 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all disabled:opacity-50"
+                    title="Send to Subscribers / सदस्यहरूलाई पठाउनुहोस्"
+                  >
+                    {broadcastingId === item.id ? (
+                      <span className="animate-pulse text-xs">Sending...</span>
+                    ) : (
+                      <Mail className="w-5 h-5" />
+                    )}
+                  </button>
+                  <button onClick={() => startEdit(item)} className="p-3 bg-slate-50 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-all" title="Edit"><Edit3 className="w-5 h-5" /></button>
+                  <button onClick={() => handleDelete(item.id, item.imageKey)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Delete"><Trash2 className="w-5 h-5" /></button>
                </div>
             </div>
           </div>
