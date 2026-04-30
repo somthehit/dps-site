@@ -65,13 +65,15 @@ export async function POST(request: NextRequest) {
 
     // If Resend API key is not available, return subscriber count
     if (!resendApiKey) {
+      console.error("RESEND_API_KEY not configured");
       return NextResponse.json({
-        message: "Email service not configured",
+        message: "Email service not configured - RESEND_API_KEY missing",
         subscriberCount: subscribers.length,
         noticeTitle: notice.title,
-      }, { status: 200 });
+      }, { status: 500 });
     }
 
+    console.log("Initializing Resend with API key...");
     const resend = new Resend(resendApiKey);
 
     // Format date
@@ -153,8 +155,8 @@ export async function POST(request: NextRequest) {
         const results = await Promise.all(
           batch.map(email => 
             resend.emails.send(email).catch(err => {
-              console.error(`Failed to send to ${email.to}:`, err);
-              return { error: err };
+              console.error(`Failed to send to ${email.to}:`, JSON.stringify(err, null, 2));
+              return { error: err, email: email.to };
             })
           )
         );
@@ -163,6 +165,12 @@ export async function POST(request: NextRequest) {
         const batchFailed = results.filter(r => r.error).length;
         sentCount += batchSent;
         failedCount += batchFailed;
+        
+        // Log first error for debugging
+        const firstError = results.find(r => r.error);
+        if (firstError) {
+          console.error("Sample Resend error:", firstError.error?.message || firstError.error);
+        }
       } catch (error) {
         console.error("Batch send error:", error);
         failedCount += batch.length;
@@ -185,6 +193,19 @@ export async function POST(request: NextRequest) {
       } catch (err) {
         console.error("Error updating email counts:", err);
       }
+    }
+
+    // If all failed, include error details
+    if (sentCount === 0 && failedCount > 0) {
+      return NextResponse.json({
+        success: false,
+        message: `All emails failed to send`,
+        sentCount,
+        failedCount,
+        totalSubscribers: subscribers.length,
+        noticeTitle: notice.title,
+        error: "Check server logs for Resend API error details. Common issues: RESEND_API_KEY not set, from email not verified, or invalid recipient email."
+      }, { status: 500 });
     }
 
     return NextResponse.json({
