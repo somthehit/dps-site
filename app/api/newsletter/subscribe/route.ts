@@ -1,6 +1,4 @@
-import { db } from "@/db";
-import { newsletterSubscribers } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -14,18 +12,47 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !serviceKey) {
+      console.error("Missing env vars");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if already exists
-    const existing = await db.query.newsletterSubscribers.findFirst({
-      where: eq(newsletterSubscribers.email, email.toLowerCase().trim()),
-    });
+    const { data: existing, error: fetchError } = await supabaseAdmin
+      .from('newsletter_subscribers')
+      .select('*')
+      .eq('email', normalizedEmail)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error("Fetch error:", fetchError);
+    }
 
     if (existing) {
-      if (!existing.isActive) {
+      if (!existing.is_active) {
         // Re-activate
-        await db
-          .update(newsletterSubscribers)
-          .set({ isActive: true, subscribedAt: new Date() })
-          .where(eq(newsletterSubscribers.id, existing.id));
+        const { error: updateError } = await supabaseAdmin
+          .from('newsletter_subscribers')
+          .update({ is_active: true, subscribed_at: new Date().toISOString() })
+          .eq('id', existing.id);
+
+        if (updateError) {
+          console.error("Re-activate error:", updateError);
+          return NextResponse.json(
+            { error: "Failed to re-activate subscription" },
+            { status: 500 }
+          );
+        }
         return NextResponse.json({ message: "Subscription re-activated!" });
       }
       return NextResponse.json(
@@ -35,9 +62,27 @@ export async function POST(req: Request) {
     }
 
     // New subscription
-    await db.insert(newsletterSubscribers).values({
-      email: email.toLowerCase().trim(),
-    });
+    const { error: insertError } = await supabaseAdmin
+      .from('newsletter_subscribers')
+      .insert({
+        email: normalizedEmail,
+        is_active: true,
+      });
+
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      // Check for duplicate email error
+      if (insertError.message?.includes("duplicate") || insertError.message?.includes("unique")) {
+        return NextResponse.json(
+          { message: "You are already subscribed!" },
+          { status: 200 }
+        );
+      }
+      return NextResponse.json(
+        { error: "Failed to subscribe. Please try again later." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { message: "Thank you for subscribing!" },
