@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 type Subscriber = {
   id: string;
   email: string;
-  isActive: boolean;
-  subscribedAt: string;
+  is_active: boolean;
+  subscribed_at: string;
 };
 
 export default function NewsletterManager() {
@@ -92,12 +92,12 @@ export default function NewsletterManager() {
                 </td>
                 <td className="px-6 py-4">
                   <button 
-                    onClick={() => toggleStatus(sub.id, sub.isActive)}
+                    onClick={() => toggleStatus(sub.id, sub.is_active)}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                      sub.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                      sub.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                     }`}
                   >
-                    {sub.isActive ? (
+                    {sub.is_active ? (
                       <><CheckCircle2 className="w-3 h-3" /> Active</>
                     ) : (
                       <><XCircle className="w-3 h-3" /> Inactive</>
@@ -105,7 +105,7 @@ export default function NewsletterManager() {
                   </button>
                 </td>
                 <td className="px-6 py-4 text-sm text-slate-500">
-                  {new Date(sub.subscribedAt).toLocaleDateString()}
+                  {sub.subscribed_at ? new Date(sub.subscribed_at).toLocaleDateString('ne-NP') : 'N/A'}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <Button
