@@ -17,9 +17,12 @@ export async function POST(req: Request) {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     
     if (!supabaseUrl || !serviceKey) {
-      console.error("Missing env vars");
+      console.error("Missing env vars:", { 
+        supabaseUrl: supabaseUrl ? "SET" : "MISSING", 
+        serviceKey: serviceKey ? "SET" : "MISSING" 
+      });
       return NextResponse.json(
-        { error: "Server configuration error" },
+        { error: `Server config error: ${!supabaseUrl ? "SUPABASE_URL" : "SERVICE_KEY"} missing` },
         { status: 500 }
       );
     }
@@ -70,16 +73,16 @@ export async function POST(req: Request) {
       });
 
     if (insertError) {
-      console.error("Insert error:", insertError);
+      console.error("Insert error details:", JSON.stringify(insertError, null, 2));
       // Check for duplicate email error
-      if (insertError.message?.includes("duplicate") || insertError.message?.includes("unique")) {
+      if (insertError.message?.includes("duplicate") || insertError.message?.includes("unique") || insertError.code === "23505") {
         return NextResponse.json(
           { message: "You are already subscribed!" },
           { status: 200 }
         );
       }
       return NextResponse.json(
-        { error: "Failed to subscribe. Please try again later." },
+        { error: `Failed to subscribe: ${insertError.message || "Unknown error"}` },
         { status: 500 }
       );
     }
@@ -89,9 +92,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("Newsletter subscription error:", error);
+    console.error("Newsletter subscription catch error:", error?.message || error);
+    console.error("Full error:", JSON.stringify(error, null, 2));
     return NextResponse.json(
-      { error: "Failed to subscribe. Please try again later." },
+      { error: `Failed to subscribe: ${error?.message || "Unknown error"}` },
       { status: 500 }
     );
   }
