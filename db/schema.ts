@@ -281,6 +281,8 @@ export const heroSlides = pgTable('hero_slides', {
 export const newsletterSubscribers = pgTable('newsletter_subscribers', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
+  email_sent_count: integer('email_sent_count').notNull().default(0),
+  last_email_sent_at: timestamp('last_email_sent_at'),
   isActive: boolean('is_active').notNull().default(true),
   subscribedAt: timestamp('subscribed_at').defaultNow(),
 }, (table) => [

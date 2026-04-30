@@ -9,6 +9,8 @@ type Subscriber = {
   email: string;
   is_active: boolean;
   subscribed_at: string;
+  email_sent_count?: number;
+  last_email_sent_at?: string;
 };
 
 export default function NewsletterManager() {
@@ -77,7 +79,9 @@ export default function NewsletterManager() {
             <tr className="bg-slate-50 border-b border-slate-200">
               <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700">Email</th>
               <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700">Status</th>
-              <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700">Date Subscribed</th>
+              <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700">Subscribed</th>
+              <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700 text-center">Emails Sent</th>
+              <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700">Last Email</th>
               <th className="px-6 py-4 font-bold text-sm uppercase tracking-wider text-slate-700 text-right">Actions</th>
             </tr>
           </thead>
@@ -107,6 +111,17 @@ export default function NewsletterManager() {
                 <td className="px-6 py-4 text-sm text-slate-500">
                   {sub.subscribed_at ? new Date(sub.subscribed_at).toLocaleDateString('ne-NP') : 'N/A'}
                 </td>
+                <td className="px-6 py-4 text-center">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">
+                    📧 {sub.email_sent_count || 0}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-500">
+                  {sub.last_email_sent_at 
+                    ? new Date(sub.last_email_sent_at).toLocaleDateString('ne-NP') + ' ' + new Date(sub.last_email_sent_at).toLocaleTimeString('ne-NP', {hour: '2-digit', minute:'2-digit'})
+                    : 'Never'
+                  }
+                </td>
                 <td className="px-6 py-4 text-right">
                   <Button
                     variant="ghost"
@@ -121,7 +136,7 @@ export default function NewsletterManager() {
             ))}
             {subscribers.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                   No subscribers found yet.
                 </td>
               </tr>

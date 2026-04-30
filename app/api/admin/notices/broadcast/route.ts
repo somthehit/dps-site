@@ -169,6 +169,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Update email_sent_count for all active subscribers
+    if (sentCount > 0) {
+      try {
+        const { error: updateError } = await supabaseAdmin
+          .rpc('increment_email_sent_count');
+        
+        if (updateError) {
+          // Fallback: update using raw SQL if RPC doesn't exist
+          await supabaseAdmin.from('newsletter_subscribers')
+            .update({ last_email_sent_at: new Date().toISOString() })
+            .eq('is_active', true);
+          console.error("Failed to increment counts (RPC may not exist):", updateError);
+        }
+      } catch (err) {
+        console.error("Error updating email counts:", err);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: `Notice broadcast completed`,
