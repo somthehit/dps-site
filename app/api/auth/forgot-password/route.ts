@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
@@ -18,6 +16,7 @@ export async function POST(request: NextRequest) {
     // Check environment variables
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const resendApiKey = process.env.RESEND_API_KEY;
     
     if (!supabaseUrl || !serviceKey) {
       console.error("Missing env vars");
@@ -28,6 +27,9 @@ export async function POST(request: NextRequest) {
     }
 
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+    
+    // Create Resend client inside request handler
+    const resend = new Resend(resendApiKey);
 
     // Check if user exists in public_users table
     const { data: userData, error: userError } = await supabaseAdmin
