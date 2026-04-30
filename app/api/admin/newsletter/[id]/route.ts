@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // Helper to get Supabase admin client
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
   
   if (!supabaseUrl || !serviceKey) {
     throw new Error("Missing environment variables");
