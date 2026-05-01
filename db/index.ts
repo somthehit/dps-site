@@ -32,8 +32,10 @@ export function getDb() {
   }
 }
 
+type DrizzleDb = ReturnType<typeof drizzle<typeof schema>>
+
 // Backward compatible export - lazy loaded
-export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+export const db = new Proxy({} as DrizzleDb, {
   get(target, prop) {
     const db = getDb()
     if (!db) {
