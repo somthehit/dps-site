@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { Resend } from 'resend';
 import { NextRequest, NextResponse } from "next/server";
+import { sendEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +16,7 @@ export async function POST(request: NextRequest) {
     // Check environment variables
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
-    const resendApiKey = process.env.RESEND_API_KEY;
-    
+
     if (!supabaseUrl || !serviceKey) {
       return NextResponse.json(
         { error: "Server configuration error" },
@@ -63,19 +62,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If Resend API key is not available, return subscriber count
-    if (!resendApiKey) {
-      console.error("RESEND_API_KEY not configured");
-      return NextResponse.json({
-        message: "Email service not configured - RESEND_API_KEY missing",
-        subscriberCount: subscribers.length,
-        noticeTitle: notice.title,
-      }, { status: 500 });
-    }
-
-    console.log("Initializing Resend with API key...");
-    const resend = new Resend(resendApiKey);
-
     // Format date
     const publishedDate = new Date(notice.created_at || Date.now()).toLocaleDateString('ne-NP', {
       year: 'numeric',
@@ -84,111 +70,93 @@ export async function POST(request: NextRequest) {
     });
 
     // Email content
-    const subject = `🎉 नयाँ सूचना: ${notice.title} / New Notice: ${notice.title}`;
+    const subject = `🎉 नयाँ सूचना: ${notice.title_ne} / New Notice: ${notice.title_en}`;
     const noticeUrl = `${appUrl}/notices/${noticeId}`;
 
-    // Send emails (Resend allows batch sending)
-    const emails = subscribers.map((sub: { email: string }) => ({
-      from: 'दिपशिखा सहकारी <onboarding@resend.dev>',
-      to: sub.email,
-      subject: subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: #166534; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-            <h1 style="margin: 0; font-size: 24px;">दिपशिखा कृषि सहकारी संस्था</h1>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">Dipshikha Krishi Sahakari Sanstha</p>
-          </div>
-          
-          <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <span style="background: #dc2626; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
-                नयाँ सूचना / NEW NOTICE
-              </span>
-            </div>
-            
-            <h2 style="color: #1f2937; margin-top: 0; font-size: 20px;">${notice.title}</h2>
-            
-            <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">
-              📅 प्रकाशित मिति / Published Date: ${publishedDate}
-            </p>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
-              <p style="color: #4b5563; line-height: 1.6; margin: 0;">
-                ${notice.content ? notice.content.substring(0, 200) + '...' : 'थप जानकारीको लागि तलको लिङ्कमा क्लिक गर्नुहोस्।'}
-              </p>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${noticeUrl}" 
-                 style="background: #166534; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                पूर्ण सूचना हेर्नुहोस् / View Full Notice →
-              </a>
-            </div>
-            
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-            
-            <p style="color: #6b7280; font-size: 12px; text-align: center;">
-              तपाईंले यो इमेल दिपशिखा कृषि सहकारीको न्यूजलेटर सदस्यता लिएकोले प्राप्त गर्नुभएको हो।<br>
-              You received this email because you subscribed to Dipshikha Sahakari newsletter.
-            </p>
-          </div>
-          
-          <div style="background: #f3f4f6; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #6b7280;">
-            <p style="margin: 0;">© 2024 Dipshikha Krishi Sahakari Sanstha. All rights reserved.</p>
-            <p style="margin: 5px 0 0 0; font-size: 11px;">
-              <a href="${appUrl}/contact" style="color: #166534;">Contact Us / सम्पर्क गर्नुहोस्</a>
-            </p>
-          </div>
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: #166534; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="margin: 0; font-size: 24px;">दिपशिखा कृषि सहकारी संस्था</h1>
+          <p style="margin: 5px 0 0 0; font-size: 14px;">Dipshikha Krishi Sahakari Sanstha</p>
         </div>
-      `,
-    }));
+        
+        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <span style="background: #dc2626; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+              नयाँ सूचना / NEW NOTICE
+            </span>
+          </div>
+          
+          <h2 style="color: #1f2937; margin-top: 0; font-size: 20px;">${notice.title_ne}</h2>
+          <h3 style="color: #4b5563; margin-top: 5px; font-size: 16px; font-weight: normal;">${notice.title_en}</h3>
+          
+          <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">
+            📅 प्रकाशित मिति / Published Date: ${publishedDate}
+          </p>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
+            <p style="color: #4b5563; line-height: 1.6; margin: 0;">
+              ${notice.desc_ne || notice.desc_en || 'थप जानकारीको लागि तलको लिङ्कमा क्लिक गर्नुहोस्।'}
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${noticeUrl}" 
+               style="background: #166534; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              पूर्ण सूचना हेर्नुहोस् / View Full Notice →
+            </a>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+          
+          <p style="color: #6b7280; font-size: 12px; text-align: center;">
+            तपाईंले यो इमेल दिपशिखा कृषि सहकारीको न्यूजलेटर सदस्यता लिएकोले प्राप्त गर्नुभएको हो।<br>
+            You received this email because you subscribed to Dipshikha Sahakari newsletter.
+          </p>
+        </div>
+        
+        <div style="background: #f3f4f6; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #6b7280;">
+          <p style="margin: 0;">© 2024 Dipshikha Krishi Sahakari Sanstha. All rights reserved.</p>
+          <p style="margin: 5px 0 0 0; font-size: 11px;">
+            <a href="${appUrl}/contact" style="color: #166534;">Contact Us / सम्पर्क गर्नुहोस्</a>
+          </p>
+        </div>
+      </div>
+    `;
 
-    // Send emails in batches of 100 (Resend limit)
-    const batchSize = 100;
+    // Send emails
     let sentCount = 0;
     let failedCount = 0;
+    let lastError = "";
 
-    for (let i = 0; i < emails.length; i += batchSize) {
-      const batch = emails.slice(i, i + batchSize);
-      
+    // Process each subscriber
+    // In production with many subscribers, this should be moved to a background job
+    for (const sub of subscribers) {
       try {
-        const results = await Promise.all(
-          batch.map(email => 
-            resend.emails.send(email).catch(err => {
-              console.error(`Failed to send to ${email.to}:`, JSON.stringify(err, null, 2));
-              return { error: err, email: email.to };
-            })
-          )
-        );
-        
-        const batchSent = results.filter(r => !r.error).length;
-        const batchFailed = results.filter(r => r.error).length;
-        sentCount += batchSent;
-        failedCount += batchFailed;
-        
-        // Log first error for debugging
-        const firstError = results.find(r => r.error);
-        if (firstError) {
-          console.error("Sample Resend error:", firstError.error?.message || firstError.error);
-        }
-      } catch (error) {
-        console.error("Batch send error:", error);
-        failedCount += batch.length;
+        await sendEmail({
+          to: sub.email,
+          subject: subject,
+          html: htmlContent,
+        });
+        sentCount++;
+      } catch (error: any) {
+        console.error(`Failed to send to ${sub.email}:`, error.message);
+        failedCount++;
+        lastError = error.message;
       }
     }
 
-    // Update email_sent_count for all active subscribers
+    // Update email_sent_count for all active subscribers if some were sent
     if (sentCount > 0) {
       try {
         const { error: updateError } = await supabaseAdmin
           .rpc('increment_email_sent_count');
-        
+
         if (updateError) {
           // Fallback: update using raw SQL if RPC doesn't exist
           await supabaseAdmin.from('newsletter_subscribers')
             .update({ last_email_sent_at: new Date().toISOString() })
             .eq('is_active', true);
-          console.error("Failed to increment counts (RPC may not exist):", updateError);
         }
       } catch (err) {
         console.error("Error updating email counts:", err);
@@ -203,18 +171,18 @@ export async function POST(request: NextRequest) {
         sentCount,
         failedCount,
         totalSubscribers: subscribers.length,
-        noticeTitle: notice.title,
-        error: "Check server logs for Resend API error details. Common issues: RESEND_API_KEY not set, from email not verified, or invalid recipient email."
+        noticeTitle: notice.title_ne,
+        error: lastError || "Unknown email service error"
       }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
-      message: `Notice broadcast completed`,
+      message: `Notice broadcast completed. Sent: ${sentCount}, Failed: ${failedCount}`,
       sentCount,
       failedCount,
       totalSubscribers: subscribers.length,
-      noticeTitle: notice.title,
+      noticeTitle: notice.title_ne,
     });
 
   } catch (error: any) {
@@ -225,3 +193,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

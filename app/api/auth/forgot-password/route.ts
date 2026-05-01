@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { Resend } from 'resend';
+import { sendEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
     // Check environment variables
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
-    const resendApiKey = process.env.RESEND_API_KEY;
     
     if (!supabaseUrl || !serviceKey) {
       console.error("Missing env vars");
@@ -27,9 +26,6 @@ export async function POST(request: NextRequest) {
     }
 
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
-    
-    // Create Resend client inside request handler
-    const resend = new Resend(resendApiKey);
 
     // Check if user exists in public_users table
     const { data: userData, error: userError } = await supabaseAdmin
@@ -73,10 +69,9 @@ export async function POST(request: NextRequest) {
 
     console.log("Password reset link generated:", resetLink);
 
-    // Send email using Resend
+    // Send email using our utility
     try {
-      const { data: emailData, error: emailError } = await resend.emails.send({
-        from: 'Dipshikha Sahakari <onboarding@resend.dev>',
+      await sendEmail({
         to: email,
         subject: 'Password Reset - दिपशिखा कृषि सहकारी संस्था',
         html: `
@@ -117,19 +112,10 @@ export async function POST(request: NextRequest) {
           </div>
         `,
       });
-
-      if (emailError) {
-        console.error("Failed to send email:", emailError);
-        // Still return success to user for security, but log the error
-        return NextResponse.json({
-          success: true,
-          message: "If an account exists with this email, you will receive a password reset link.",
-        });
-      }
-
-      console.log("Email sent successfully:", emailData);
-    } catch (emailSendError) {
-      console.error("Email send error:", emailSendError);
+      console.log("Email sent successfully to:", email);
+    } catch (emailError: any) {
+      console.error("Failed to send reset email:", emailError.message);
+      // Still return success for security
     }
 
     return NextResponse.json({
@@ -144,3 +130,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
