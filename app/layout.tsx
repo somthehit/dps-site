@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Noto_Sans_Devanagari, Noto_Serif_Devanagari } from "
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import Script from "next/script";
+import { CookieConsent } from "@/components/CookieConsent";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -24,14 +25,14 @@ const notoSerifDevanagari = Noto_Serif_Devanagari({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://dpscoop.com.np"),
   title: {
-    default: "Dipshikha Krishi Sahakari Sanstha Ltd.",
-    template: "%s | Dipshikha Krishi Sahakari",
+    default: "Shree Dipshikha Krishi Sahakari Sanstha Ltd.",
+    template: "%s | Shree Dipshikha Krishi Sahakari",
   },
   description: "A trusted agriculture cooperative serving farming families across Sudurpachim Province,Kalilai, providing savings, loans, and agricultural support.",
-  keywords: ["agriculture cooperative", "Nepal", "farming", "microfinance", "savings and credit", "Sudurpachim Province,Kalilai", "Dipshikha Krishi Sahakari"],
-  authors: [{ name: "Dipshikha Krishi Sahakari Sanstha Ltd." }],
-  creator: "Dipshikha Krishi Sahakari Sanstha Ltd.",
-  publisher: "Dipshikha Krishi Sahakari Sanstha Ltd.",
+  keywords: ["agriculture cooperative", "Nepal", "farming", "microfinance", "savings and credit", "Sudurpachim Province,Kalilai", "Shree Dipshikha Krishi Sahakari"],
+  authors: [{ name: "Shree Dipshikha Krishi Sahakari Sanstha Ltd." }],
+  creator: "Shree Dipshikha Krishi Sahakari Sanstha Ltd.",
+  publisher: "Shree Dipshikha Krishi Sahakari Sanstha Ltd.",
   alternates: {
     canonical: "/",
   },
@@ -72,6 +73,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* GDPR Consent - Default Denied */}
+        <Script id="gtag-consent" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              'ad_storage': 'denied',
+              'ad_user_data': 'denied',
+              'ad_personalization': 'denied',
+              'analytics_storage': 'denied'
+            });
+          `}
+        </Script>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-MPX2EHBGGH"
           strategy="afterInteractive"
@@ -88,6 +102,7 @@ export default function RootLayout({
       <body className={`${jakarta.variable} ${notoDevanagari.variable} ${notoSerifDevanagari.variable} font-sans bg-slate-50 text-slate-900`}>
         <LanguageProvider>
           {children}
+          <CookieConsent />
         </LanguageProvider>
       </body>
     </html>
