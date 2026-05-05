@@ -21,7 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components/ui/button";
+import MemberSidebar from "@/components/member/MemberSidebar";
 
 export default function MemberDashboard() {
   const [user, setUser] = useState<{ email: string; fullName?: string } | null>(null);
@@ -121,63 +121,7 @@ export default function MemberDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col">
-        {/* Logo */}
-        <div className="p-6 border-b border-slate-100">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-brand-700 rounded-xl flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-bold text-slate-900 text-sm">दिपशिखा सहकारी</h1>
-              <p className="text-[10px] text-slate-500">DPS Member Portal</p>
-            </div>
-          </Link>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
-          <Link
-            href="/member"
-            className="flex items-center gap-3 px-4 py-3 bg-brand-50 text-brand-700 rounded-xl font-medium"
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            Dashboard
-          </Link>
-
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
-            <User className="w-5 h-5" />
-            My Profile
-          </button>
-
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
-            <Wallet className="w-5 h-5" />
-            My Savings
-          </button>
-
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
-            <FileText className="w-5 h-5" />
-            Documents
-          </button>
-
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
-            <Settings className="w-5 h-5" />
-            Settings
-          </button>
-        </nav>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-slate-100">
-          <Button
-            onClick={handleLogout}
-            variant="ghost"
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-medium"
-          >
-            <LogOut className="w-5 h-5" />
-            Logout
-          </Button>
-        </div>
-      </aside>
+      <MemberSidebar onLogout={handleLogout} />
 
       {/* Main Content */}
       <main className="flex-1">

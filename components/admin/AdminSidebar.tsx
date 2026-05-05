@@ -2,19 +2,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Settings, Share2, Bell, LogOut, ExternalLink, Package, Users, Users2, Image as ImageIcon, Download, Shield, Megaphone, MessageSquare, Sliders, Mail, UserCheck } from "lucide-react";
+import { LayoutDashboard, Settings, Share2, Bell, LogOut, ExternalLink, Package, Users, Users2, Image as ImageIcon, Download, Shield, Megaphone, MessageSquare, Sliders, Mail, UserCheck, FileText, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Forms", href: "/admin/forms", icon: FileText },
+  { label: "Submissions", href: "/admin/submissions", icon: ClipboardList },
   { label: "Hero Slides", href: "/admin/hero", icon: Sliders },
-  { label: "Applications", href: "/admin/public-users", icon: UserCheck },
-  { label: "Messages", href: "/admin/messages", icon: MessageSquare },
-  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
   { label: "Site Settings", href: "/admin/settings", icon: Settings },
   { label: "Social Links", href: "/admin/social-links", icon: Share2 },
   { label: "Notices", href: "/admin/notices", icon: Bell },
   { label: "News Ticker", href: "/admin/news-ticker", icon: Megaphone },
+  { label: "Messages", href: "/admin/messages", icon: MessageSquare },
+  { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
+  { label: "Applications", href: "/admin/public-users", icon: UserCheck },
   { label: "Services", href: "/admin/services", icon: Package },
   { label: "Team Members", href: "/admin/team", icon: Users2 },
   { label: "Members", href: "/admin/members", icon: Users },

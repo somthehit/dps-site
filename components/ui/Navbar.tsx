@@ -85,6 +85,7 @@ export default function Navbar({ settings = {}, socialLinks = [] }: NavbarProps)
     { name: t.nav.gallery, href: "/gallery" },
     { name: t.nav.downloads, href: "/downloads" },
     { name: t.nav.notice, href: "/notices" },
+    { name: "Online Forms", href: "/member/forms" },
     { name: t.nav.contact, href: "/contact" },
   ];
 

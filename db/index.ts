@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema'
+import * as formsSchema from './forms-schema'
 
 // Lazy initialization to prevent build errors
 let dbInstance: ReturnType<typeof drizzle> | null = null
@@ -24,7 +25,7 @@ export function getDb() {
 
     if (process.env.NODE_ENV !== "production") globalForDb.client = client;
 
-    dbInstance = drizzle(client, { schema });
+    dbInstance = drizzle(client, { schema: { ...schema, ...formsSchema } });
     return dbInstance
   } catch (error) {
     console.warn("Failed to initialize Drizzle DB client:", error)
