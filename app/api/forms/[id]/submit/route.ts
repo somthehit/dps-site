@@ -54,6 +54,28 @@ export async function POST(request: NextRequest, { params }: Params) {
       }
     }
 
+    // 1.3 Prevent duplicate submissions — one submission per member per form
+    if (!isDraft && memberId) {
+      const [existingSubmission] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.formId, formId),
+            eq(formSubmissions.memberId, memberId),
+            eq(formSubmissions.status, "submitted") // Only check submitted (not drafts)
+          )
+        )
+        .limit(1);
+
+      if (existingSubmission) {
+        return NextResponse.json(
+          { error: "You have already submitted this form / तपाईंले यो फाराम पहिले नै पेश गरिसक्नु भएको छ" },
+          { status: 409 }
+        );
+      }
+    }
+
     // 2. Rate limiting — check submissions in last minute and today
     if (!isDraft && memberId) {
       const now = new Date();
