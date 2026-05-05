@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Noto_Sans_Devanagari, Noto_Serif_Devanagari } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import Script from "next/script";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -70,6 +71,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-MPX2EHBGGH"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-MPX2EHBGGH');
+          `}
+        </Script>
+      </head>
       <body className={`${jakarta.variable} ${notoDevanagari.variable} ${notoSerifDevanagari.variable} font-sans bg-slate-50 text-slate-900`}>
         <LanguageProvider>
           {children}
